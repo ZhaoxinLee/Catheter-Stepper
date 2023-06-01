@@ -113,5 +113,14 @@ class GUI(QMainWindow,Ui_MainWindow):
             
         rotThick = self.spb_thickRotBF.value()
         if rotThick:
+            dirBF = 'forward' if rotThick>0 else 'backward'
+            rotationThick = 'rotating clockwise' if rotThick>0 else 'rotating counter-clockwise'
+            print('Thick wire',rotationThick,'for',round(int(round(abs(rotThick)/0.9))*0.9,1),'deg')
+            stepperBF.TurnStep(Dir=dirBF, steps=int(abs(rotThick)/0.9), stepdelay = 0.001)
             
-        
+        rotThin = self.spb_thinRotBR.value()
+        if rotThin:
+            dirBR = 'forward' if rotThin>0 else 'backward'
+            rotationThin = 'rotating clockwise' if rotThin>0 else 'rotating counter-clockwise'
+            print('Thin wire',rotationThin,'for',round(int(round(abs(rotThin)/0.9))*0.9,1),'deg')
+            stepperBR.TurnStep(Dir=dirBR, steps=int(abs(rotThin)/0.9), stepdelay = 0.001)
