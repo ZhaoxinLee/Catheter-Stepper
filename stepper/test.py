@@ -5,11 +5,11 @@ from HR8825 import HR8825
 
 try:
     # small stepper motors
-	Motor1 = HR8825(dir_pin=13, step_pin=19, enable_pin=26, mode_pins=(16, 17, 20))
-	Motor2 = HR8825(dir_pin=10, step_pin=9, enable_pin=11, mode_pins=(21, 22, 27))
+	Motor1 = HR8825(dir_pin=13, step_pin=19, enable_pin=26)#, mode_pins=(16, 17, 20))
+	Motor2 = HR8825(dir_pin=10, step_pin=9, enable_pin=11)#, mode_pins=(21, 22, 27))
 	# big stepper motors
-	Motor3 = HR8825(dir_pin=21, step_pin=20, enable_pin=16, mode_pins=(16, 17, 20))
-	Motor4 = HR8825(dir_pin=5, step_pin=6, enable_pin=12, mode_pins=(21, 22, 27))
+	Motor3 = HR8825(dir_pin=21, step_pin=20, enable_pin=16)#, mode_pins=(16, 17, 20))
+	Motor4 = HR8825(dir_pin=5, step_pin=6, enable_pin=12)#, mode_pins=(21, 22, 27))
 
 	"""
 	# 1.8 degree: nema23, nema14
