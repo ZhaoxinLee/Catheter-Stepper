@@ -16,8 +16,8 @@ qtCreatorFile = "mainwindow.ui"
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 # Joystick initialized
-from XboxController import XBOX
 try:
+    from XboxController import XBOX
     joystick = XBOX()
 except:
     print('Joystick not connected.')
@@ -77,10 +77,13 @@ class GUI(QMainWindow,Ui_MainWindow):
         stepperBR.SetMicroStep('hardware')
         
     def setupSubThread(self):
-        if joystick:
-            self.thrd = SubThread(stepperSF,stepperSR,stepperBF,stepperBR,joystick)
-        else:
+        try:
+            joystick
+        except:
             self.thrd = SubThread(stepperSF,stepperSR,stepperBF,stepperBR)
+        else:
+            self.thrd = SubThread(stepperSF,stepperSR,stepperBF,stepperBR,joystick)
+            
         self.thrd.finished.connect(self.finishSubThreadProcess)
         
     @pyqtSlot()

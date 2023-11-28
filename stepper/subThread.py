@@ -6,8 +6,12 @@ import threading
 
 pygame.init()
 pygame.joystick.init()
-joystick = pygame.joystick.Joystick(0)
-joystick.init()
+try:
+    joystick = pygame.joystick.Joystick(0)
+except:
+    pass
+else:
+    joystick.init()
 
 def subthreadNotDefined():
     print('Subthread not defined.')
@@ -43,42 +47,47 @@ class SubThread(QThread):
         
     def joystick_start(self):
         startTime = time.time()
-        while True:
-            t = time.time() - startTime # elapsed time (sec)
-            if joystick.get_button(0):
-                self.thick_state = 'CW'
-            if joystick.get_button(1):
-                self.thick_state = 'CCW'
-            if joystick.get_button(2):
-                self.thin_state = 'CW'
-            if joystick.get_button(3):
-                self.thin_state = 'CCW'
-            
-            # Multithreading programming
-            # thick translational
-            thickTransThread = threading.Thread(target=self.thick_trans,args=())
-            
-            # thin translational
-            thinTransThread = threading.Thread(target=self.thin_trans,args=())
-            
-            # thick rotational
-            thickRotThread = threading.Thread(target=self.thick_rot,args=())
-            
-            # thin rotational
-            thinRotThread = threading.Thread(target=self.thin_rot,args=())
-            
-            thickTransThread.start()
-            thinTransThread.start()
-            thickRotThread.start()
-            thinRotThread.start()
-
-            thickTransThread.join()
-            thinTransThread.join()
-            thickRotThread.join()
-            thinRotThread.join()
+        try:
+            joystick
+        except:
+            print('Joystick not connected')
+        else:
+            while True:
+                t = time.time() - startTime # elapsed time (sec)
+                if joystick.get_button(0):
+                    self.thick_state = 'CW'
+                if joystick.get_button(1):
+                    self.thick_state = 'CCW'
+                if joystick.get_button(2):
+                    self.thin_state = 'CW'
+                if joystick.get_button(3):
+                    self.thin_state = 'CCW'
                 
-            if self.stopped:
-                return
+                # Multithreading programming
+                # thick translational
+                thickTransThread = threading.Thread(target=self.thick_trans,args=())
+                
+                # thin translational
+                thinTransThread = threading.Thread(target=self.thin_trans,args=())
+                
+                # thick rotational
+                thickRotThread = threading.Thread(target=self.thick_rot,args=())
+                
+                # thin rotational
+                thinRotThread = threading.Thread(target=self.thin_rot,args=())
+                
+                thickTransThread.start()
+                thinTransThread.start()
+                thickRotThread.start()
+                thinRotThread.start()
+
+                thickTransThread.join()
+                thinTransThread.join()
+                thickRotThread.join()
+                thinRotThread.join()
+                    
+                if self.stopped:
+                    return
 
     def thick_trans(self):
         if joystick.get_axis(1)<-0.2:
