@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>548</width>
-    <height>376</height>
+    <width>621</width>
+    <height>403</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>191</width>
+      <width>221</width>
       <height>301</height>
      </rect>
     </property>
@@ -29,7 +29,7 @@
     <widget class="QSpinBox" name="spb_stepperSF">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>120</x>
        <y>30</y>
        <width>71</width>
        <height>31</height>
@@ -97,7 +97,7 @@
     <widget class="QSpinBox" name="spb_stepperSR">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>120</x>
        <y>70</y>
        <width>71</width>
        <height>31</height>
@@ -113,7 +113,7 @@
     <widget class="QSpinBox" name="spb_stepperBF">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>120</x>
        <y>110</y>
        <width>71</width>
        <height>31</height>
@@ -129,8 +129,8 @@
     <widget class="QSpinBox" name="spb_stepperBR">
      <property name="geometry">
       <rect>
-       <x>100</x>
-       <y>150</y>
+       <x>120</x>
+       <y>140</y>
        <width>71</width>
        <height>31</height>
       </rect>
@@ -185,7 +185,7 @@
    <widget class="QGroupBox" name="groupBox_2">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>240</x>
       <y>10</y>
       <width>321</width>
       <height>301</height>
@@ -422,6 +422,19 @@
       <string>negtive val =&gt; backward &amp; CCW</string>
      </property>
     </widget>
+   </widget>
+   <widget class="QCheckBox" name="chb_joystick">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>320</y>
+      <width>85</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Joystick</string>
+    </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

@@ -4,14 +4,26 @@ import os, sys
 import RPi.GPIO as GPIO
 from HR8825 import HR8825
 from PyQt5 import uic
-from PyQt5.QtCore import QFile, QRegExp, QTimer
+from PyQt5.QtCore import QFile, QRegExp, QTimer, pyqtSlot
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QMenu, QMessageBox,QTableWidgetItem
+from subThread import SubThread
+import pygame
 #=========================================================
 # a class that handles the signal and callbacks of the GUI
 #=========================================================
 # UI config
 qtCreatorFile = "mainwindow.ui"
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
+
+# Joystick initialized
+from XboxController import XBOX
+try:
+    joystick = XBOX()
+except:
+    print('Joystick not connected.')
+    pass
+else:
+    print('Joystick initialized.')
 
 # stepper motors
 stepperSF = HR8825(dir_pin=13, step_pin=19, enable_pin=26)
@@ -30,9 +42,13 @@ class GUI(QMainWindow,Ui_MainWindow):
         self.setupUi(self)
         self.setupWindow()
         self.setupStepper()
+        self.setupSubThread()
+        
+        self.setupTimer()
 
         self.setupFileMenu()
         self.setupHelpMenu()
+        
 
     def closeEvent(self,event):
         stepperSF.Stop()
@@ -40,16 +56,49 @@ class GUI(QMainWindow,Ui_MainWindow):
         stepperBF.Stop()
         stepperBR.Stop()
         print("All stepper motors stopped and released.")
+        self.thrd.stop()
+        try:
+            joystick
+        except NameError:
+            pass
+        else:
+            joystick.quit()
+        event.accept()
 
     def setupWindow(self): 
         self.btn_runDirectMotor.clicked.connect(self.on_btn_runDirectMotor)
         self.btn_runCatheterPos.clicked.connect(self.on_btn_runCatheterPos)
+        self.chb_joystick.toggled.connect(self.on_chb_joystick)
 
     def setupStepper(self):
         stepperSF.SetMicroStep('hardware')
         stepperSR.SetMicroStep('hardware')
         stepperBF.SetMicroStep('hardware')
         stepperBR.SetMicroStep('hardware')
+        
+    def setupSubThread(self):
+        if joystick:
+            self.thrd = SubThread(stepperSF,stepperSR,stepperBF,stepperBR,joystick)
+        else:
+            self.thrd = SubThread(stepperSF,stepperSR,stepperBF,stepperBR)
+        self.thrd.finished.connect(self.finishSubThreadProcess)
+        
+    @pyqtSlot()
+    def finishSubThreadProcess(self):
+        print('Joystick is terminated.')
+        
+    def setupTimer(self):
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update)
+        self.timer.start(6) # msec
+        
+    def update(self):
+        try:
+            joystick
+        except NameError:
+            pass
+        else:
+            joystick.update()
 
     def about(self):
         QMessageBox.about(self, "About Stepper",
@@ -67,7 +116,7 @@ class GUI(QMainWindow,Ui_MainWindow):
         self.menuBar().addMenu(helpMenu)
         helpMenu.addAction("&About", self.about)
 
-    def on_btn_runDirectMotor(self):
+    def on_btn_runDirectMotor(self): #The default step of the motor driver is 1/4 step ("010"), thus steps are multiplied by 4
         stepSF = self.spb_stepperSF.value()
         if stepSF:
             dirSF = 'backward' if stepSF>0 else 'forward'
@@ -96,7 +145,7 @@ class GUI(QMainWindow,Ui_MainWindow):
             print('Stepper Big Rear:',motionBR,abs(stepBR),'steps,',abs(stepBR)*1.8,'deg')
             stepperBR.TurnStep(Dir=dirBR, steps=abs(stepBR)*4, stepdelay = 0.001)
 
-    def on_btn_runCatheterPos(self):
+    def on_btn_runCatheterPos(self): #The default step of the motor driver is 1/4 step ("010"), thus steps are multiplied by 4
         transThick = self.spb_thickTransSF.value()
         if transThick:
             dirSF = 'backward' if transThick>0 else 'forward'
@@ -116,11 +165,20 @@ class GUI(QMainWindow,Ui_MainWindow):
             dirBF = 'forward' if rotThick>0 else 'backward'
             rotationThick = 'rotating clockwise' if rotThick>0 else 'rotating counter-clockwise'
             print('Thick wire',rotationThick,'for',round(int(round(abs(rotThick)/0.9))*0.9,1),'deg')
-            stepperBF.TurnStep(Dir=dirBF, steps=int(abs(rotThick)/0.9), stepdelay = 0.001)
+            stepperBF.TurnStep(Dir=dirBF, steps=int(abs(rotThick)/0.45), stepdelay = 0.001)
             
         rotThin = self.spb_thinRotBR.value()
         if rotThin:
             dirBR = 'forward' if rotThin>0 else 'backward'
             rotationThin = 'rotating clockwise' if rotThin>0 else 'rotating counter-clockwise'
             print('Thin wire',rotationThin,'for',round(int(round(abs(rotThin)/0.9))*0.9,1),'deg')
-            stepperBR.TurnStep(Dir=dirBR, steps=int(abs(rotThin)/0.9), stepdelay = 0.001)
+            stepperBR.TurnStep(Dir=dirBR, steps=int(abs(rotThin)/0.45), stepdelay = 0.001)
+            
+    def on_chb_joystick(self,state):
+        if state:
+            self.thrd.setup('joystick_start')
+            self.thrd.start()
+            print('Joystick starts controlling.')
+        else:
+            self.thrd.stop()
+
